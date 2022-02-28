@@ -173,7 +173,7 @@ import time
 time.sleep(5)
 ```
 
-ユーサーを確認します。
+ユーザーを確認します。
 
 
 ```shell
