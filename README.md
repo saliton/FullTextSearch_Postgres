@@ -8,7 +8,7 @@
 
 ## 準備
 
-まずは検索対象のテキストを日本語wikiから取得して、Google Driveに保存します。（※ Google Driveに約１GBの空き容量が必要です。）
+まずは検索対象のテキストを日本語wikiから取得して、Google Driveに保存します。（※ Google Driveに約１GBの空き容量が必要です。以前のデータが残っている場合は取得せず再利用します。）
 
 Google Driveのマウント
 
@@ -21,7 +21,7 @@ drive.mount('/content/drive')
     Mounted at /content/drive
 
 
-jawikiの取得とjson形式に変換。90分ほど時間がかかります。他の全文検索シリーズでも同じデータを使うので、他の記事も試したい方は wiki.json.bz2 を捨てずに残しておくことをおすすめします。
+jawikiの取得とjson形式に変換。90分ほど時間がかかります。他の全文検索シリーズでも同じデータを使うので、他の記事も試す場合は wiki.json.bz2 を捨てずに残しておくことをおすすめします。
 
 
 ```shell
@@ -35,8 +35,8 @@ if not os.path.exists('/content/drive/MyDrive/wiki.json.bz2'):
 ```
 
     /content
-    CPU times: user 2.83 ms, sys: 122 µs, total: 2.95 ms
-    Wall time: 15 ms
+    CPU times: user 1.58 ms, sys: 75 µs, total: 1.65 ms
+    Wall time: 9.63 ms
 
 
 json形式に変換されたデータを確認
@@ -76,16 +76,43 @@ pg_bigmをビルドするのにPostgreSQLのソースコードが必要なよう
 !make install
 ```
 
+全文検索用のモジュールpg_bigmをインストールします。
+
+
+```shell
+%cd /content
+!wget https://ja.osdn.net/projects/pgbigm/downloads/72448/pg_bigm-1.2-20200228.tar.gz
+!tar xzf pg_bigm-1.2-20200228.tar.gz
+%cd /content/pg_bigm-1.2-20200228
+!make USE_PGXS=1 PG_CONFIG=/usr/local/pgsql/bin/pg_config install
+```
+
     /content
-    --2022-02-22 10:22:54--  https://ftp.postgresql.org/pub/source/v14.1/postgresql-14.1.tar.gz
-    Resolving ftp.postgresql.org (ftp.postgresql.org)... 147.75.85.69, 217.196.149.55, 72.32.157.246, ...
-    Connecting to ftp.postgresql.org (ftp.postgresql.org)|147.75.85.69|:443... connected.
+    --2022-03-26 08:55:48--  https://ja.osdn.net/projects/pgbigm/downloads/72448/pg_bigm-1.2-20200228.tar.gz
+    Resolving ja.osdn.net (ja.osdn.net)... 44.240.119.141, 35.167.170.34
+    Connecting to ja.osdn.net (ja.osdn.net)|44.240.119.141|:443... connected.
+    HTTP request sent, awaiting response... 302 Found
+    Location: https://ja.osdn.net/frs/redir.php?m=nchc&f=pgbigm%2F72448%2Fpg_bigm-1.2-20200228.tar.gz [following]
+    --2022-03-26 08:55:49--  https://ja.osdn.net/frs/redir.php?m=nchc&f=pgbigm%2F72448%2Fpg_bigm-1.2-20200228.tar.gz
+    Reusing existing connection to ja.osdn.net:443.
+    HTTP request sent, awaiting response... 302 Found
+    Location: https://free.nchc.org.tw/osdn//pgbigm/72448/pg_bigm-1.2-20200228.tar.gz [following]
+    --2022-03-26 08:55:49--  https://free.nchc.org.tw/osdn//pgbigm/72448/pg_bigm-1.2-20200228.tar.gz
+    Resolving free.nchc.org.tw (free.nchc.org.tw)... 140.110.240.80, 2001:e10:2000:240:e643:4bff:fee8:a63c
+    Connecting to free.nchc.org.tw (free.nchc.org.tw)|140.110.240.80|:443... connected.
     HTTP request sent, awaiting response... 200 OK
-    Length: 28666442 (27M) [application/octet-stream]
-    Saving to: ‘postgresql-14.1.tar.gz’
-    ・
-    ・
-    ・
+    Length: 40420 (39K) [application/x-gzip]
+    Saving to: ‘pg_bigm-1.2-20200228.tar.gz’
+    
+    pg_bigm-1.2-2020022 100%[===================>]  39.47K   229KB/s    in 0.2s    
+    
+    2022-03-26 08:55:50 (229 KB/s) - ‘pg_bigm-1.2-20200228.tar.gz’ saved [40420/40420]
+    
+    /content/pg_bigm-1.2-20200228
+    gcc -Wall -Wmissing-prototypes -Wpointer-arith -Wdeclaration-after-statement -Werror=vla -Wendif-labels -Wmissing-format-attribute -Wimplicit-fallthrough=3 -Wformat-security -fno-strict-aliasing -fwrapv -fexcess-precision=standard -Wno-format-truncation -O2 -fPIC -I. -I./ -I/usr/local/pgsql/include/server -I/usr/local/pgsql/include/internal  -D_GNU_SOURCE   -c -o bigm_op.o bigm_op.c
+    gcc -Wall -Wmissing-prototypes -Wpointer-arith -Wdeclaration-after-statement -Werror=vla -Wendif-labels -Wmissing-format-attribute -Wimplicit-fallthrough=3 -Wformat-security -fno-strict-aliasing -fwrapv -fexcess-precision=standard -Wno-format-truncation -O2 -fPIC -I. -I./ -I/usr/local/pgsql/include/server -I/usr/local/pgsql/include/internal  -D_GNU_SOURCE   -c -o bigm_gin.o bigm_gin.c
+    gcc -Wall -Wmissing-prototypes -Wpointer-arith -Wdeclaration-after-statement -Werror=vla -Wendif-labels -Wmissing-format-attribute -Wimplicit-fallthrough=3 -Wformat-security -fno-strict-aliasing -fwrapv -fexcess-precision=standard -Wno-format-truncation -O2 -fPIC -shared -o pg_bigm.so bigm_op.o bigm_gin.o -L/usr/local/pgsql/lib    -Wl,--as-needed -Wl,-rpath,'/usr/local/pgsql/lib',--enable-new-dtags  
+    /bin/mkdir -p '/usr/local/pgsql/lib'
     /bin/mkdir -p '/usr/local/pgsql/share/extension'
     /bin/mkdir -p '/usr/local/pgsql/share/extension'
     /usr/bin/install -c -m 755  pg_bigm.so '/usr/local/pgsql/lib/pg_bigm.so'
@@ -147,7 +174,7 @@ DBを構築する場所を初期化します。
     
 
 
-bg_bigmをロードするための設定を書き込みます。
+pg_bigmをロードするための設定を書き込みます。
 
 
 ```shell
@@ -157,7 +184,7 @@ bg_bigmをロードするための設定を書き込みます。
 PostgreSQLをバックグラウンドで走らせます。
 
 
-```shell
+```bash
 %%bash --bg
 sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /tmp/postgres start
 ```
@@ -173,7 +200,7 @@ import time
 time.sleep(5)
 ```
 
-ユーザーを確認します。
+ユーサーを確認します。
 
 
 ```shell
@@ -194,13 +221,13 @@ time.sleep(5)
 !ps aux | grep postgres | grep -v grep
 ```
 
-    postgres    9786  0.2  0.1 174156 17752 ?        Ss   10:28   0:00 /usr/local/pgsql/bin/postgres -D /tmp/postgres
-    postgres    9788  0.0  0.0 174156  2584 ?        Ss   10:28   0:00 postgres: checkpointer 
-    postgres    9789  0.0  0.0 174156  2584 ?        Ss   10:28   0:00 postgres: background writer 
-    postgres    9790  0.0  0.0 174156  2584 ?        Ss   10:28   0:00 postgres: walwriter 
-    postgres    9791  0.0  0.0 174724  5444 ?        Ss   10:28   0:00 postgres: autovacuum launcher 
-    postgres    9792  0.0  0.0  28796  2144 ?        Ss   10:28   0:00 postgres: stats collector 
-    postgres    9793  0.0  0.0 174588  3496 ?        Ss   10:28   0:00 postgres: logical replication launcher 
+    postgres    9778  0.2  0.1 174156 17936 ?        Ss   08:55   0:00 /usr/local/pgsql/bin/postgres -D /tmp/postgres
+    postgres    9780  0.0  0.0 174156  2576 ?        Ss   08:55   0:00 postgres: checkpointer 
+    postgres    9781  0.0  0.0 174156  2576 ?        Ss   08:55   0:00 postgres: background writer 
+    postgres    9782  0.0  0.0 174156  2576 ?        Ss   08:55   0:00 postgres: walwriter 
+    postgres    9783  0.0  0.0 174724  5444 ?        Ss   08:55   0:00 postgres: autovacuum launcher 
+    postgres    9784  0.0  0.0  28796  2072 ?        Ss   08:55   0:00 postgres: stats collector 
+    postgres    9785  0.0  0.0 174588  3404 ?        Ss   08:55   0:00 postgres: logical replication launcher 
 
 
 ## DB作成
@@ -304,7 +331,9 @@ db.close()
 
 ## インデックスを使わない検索
 
-like検索でシーケンシャルに検索した場合を測定します。\timingを設定すると、出力の最後に処理時間が出力されるので、その部分だけをtailコマンドで切り出しています。
+like検索でシーケンシャルに検索した場合を測定します。
+
+検索プランを表示します。インデックスを使っていないことが確認できます。
 
 
 ```shell
@@ -314,13 +343,15 @@ like検索でシーケンシャルに検索した場合を測定します。\tim
     SET
                                      QUERY PLAN                                  
     -----------------------------------------------------------------------------
-     Gather  (cost=1000.00..50261.62 rows=50 width=714)
+     Gather  (cost=1000.00..69084.02 rows=411 width=64)
        Workers Planned: 2
-       ->  Parallel Seq Scan on wiki_jp  (cost=0.00..49256.62 rows=21 width=714)
+       ->  Parallel Seq Scan on wiki_jp  (cost=0.00..68042.92 rows=171 width=64)
              Filter: (body ~~ '%日本語%'::text)
     (4 rows)
     
 
+
+\timingを設定すると、出力の最後に処理時間が出力されます。
 
 
 ```shell
@@ -330,21 +361,10 @@ set enable_bitmapscan=off;
 select * from wiki_jp where body like '%日本語%';
 ```
 
-    Overwriting command.txt
+    Writing command.txt
 
 
-
-```shell
-%%time
-!sudo -u postgres /usr/local/pgsql/bin/psql db < command.txt | tail -3
-```
-
-    (17006 rows)
-    
-    Time: 7557.019 ms (00:07.557)
-    CPU times: user 132 ms, sys: 11.6 ms, total: 144 ms
-    Wall time: 14.9 s
-
+出力される件数と処理時間の部分だけをtailコマンドで切り出しています。
 
 
 ```shell
@@ -354,16 +374,59 @@ select * from wiki_jp where body like '%日本語%';
 
     (17006 rows)
     
-    Time: 7127.951 ms (00:07.128)
-    CPU times: user 115 ms, sys: 25.9 ms, total: 141 ms
-    Wall time: 14.5 s
+    Time: 10038.010 ms (00:10.038)
+    CPU times: user 154 ms, sys: 27.4 ms, total: 182 ms
+    Wall time: 17.8 s
+
+
+2回目
+
+
+```shell
+%%time
+!sudo -u postgres /usr/local/pgsql/bin/psql db < command.txt | tail -3
+```
+
+    (17006 rows)
+    
+    Time: 6964.317 ms (00:06.964)
+    CPU times: user 131 ms, sys: 13.7 ms, total: 145 ms
+    Wall time: 14.3 s
 
 
 内部での処理時間と%%timeによるセルの実行時間に乖離があります。内部の処理時間は検索のみの時間かもしれません。
 
+参考にtitleのみを抽出するクエリを測定します。
+
+
+```shell
+%%writefile command2.txt
+set enable_bitmapscan=off;
+\timing
+select title from wiki_jp where body like '%日本語%';
+```
+
+    Overwriting command2.txt
+
+
+
+```shell
+%%time
+!sudo -u postgres /usr/local/pgsql/bin/psql db < command2.txt | tail -3
+```
+
+    (17006 rows)
+    
+    Time: 6340.743 ms (00:06.341)
+    CPU times: user 57.4 ms, sys: 16.1 ms, total: 73.6 ms
+    Wall time: 6.45 s
+
+
+内部の検索時間は変わりません。全体の処理時間が短くなったのは、転送する結果の量の違いによるものでしょう。
+
 ## 全文検索用インデックスの作成
 
-[リンクテキスト](https://)インデックスの作成には15分ほどかかります。
+インデックスの作成には15分ほどかかります。
 
 
 ```shell
@@ -372,11 +435,13 @@ select * from wiki_jp where body like '%日本語%';
 ```
 
     CREATE INDEX
-    CPU times: user 7.47 s, sys: 978 ms, total: 8.44 s
-    Wall time: 15min 49s
+    CPU times: user 7.24 s, sys: 946 ms, total: 8.18 s
+    Wall time: 14min 40s
 
 
 ## インデックスを使った検索
+
+検索プランを表示します。インデックスを使っていることが確認できます。
 
 
 ```shell
@@ -386,13 +451,15 @@ select * from wiki_jp where body like '%日本語%';
     SET
                                      QUERY PLAN                                 
     ----------------------------------------------------------------------------
-     Bitmap Heap Scan on wiki_jp  (cost=44.39..240.10 rows=50 width=714)
+     Bitmap Heap Scan on wiki_jp  (cost=44.39..240.10 rows=50 width=64)
        Recheck Cond: (body ~~ '%日本語%'::text)
-       ->  Bitmap Index Scan on wiki_jp_idx  (cost=0.00..44.37 rows=50 width=0)
+       ->  Bitmap Index Scan on wiki_jp_idx  (cost=0.00..44.38 rows=50 width=0)
              Index Cond: (body ~~ '%日本語%'::text)
     (4 rows)
     
 
+
+インデックスを有効にした検索コマンドを作成します。
 
 
 ```shell
@@ -405,18 +472,7 @@ select * from wiki_jp where body like '%日本語%';
     Overwriting command.txt
 
 
-
-```shell
-%%time
-!sudo -u postgres /usr/local/pgsql/bin/psql db < command.txt | tail -3
-```
-
-    (17006 rows)
-    
-    Time: 1835.302 ms (00:01.835)
-    CPU times: user 77.7 ms, sys: 16 ms, total: 93.7 ms
-    Wall time: 9.46 s
-
+1回目
 
 
 ```shell
@@ -426,12 +482,53 @@ select * from wiki_jp where body like '%日本語%';
 
     (17006 rows)
     
-    Time: 1833.668 ms (00:01.834)
-    CPU times: user 79 ms, sys: 14 ms, total: 92.9 ms
-    Wall time: 9.16 s
+    Time: 1958.167 ms (00:01.958)
+    CPU times: user 83 ms, sys: 18.8 ms, total: 102 ms
+    Wall time: 9.26 s
+
+
+2回目
+
+
+```shell
+%%time
+!sudo -u postgres /usr/local/pgsql/bin/psql db < command.txt | tail -3
+```
+
+    (17006 rows)
+    
+    Time: 1754.218 ms (00:01.754)
+    CPU times: user 73.4 ms, sys: 17.2 ms, total: 90.6 ms
+    Wall time: 9.26 s
 
 
 インデックスを使うことによる効果は表れていますが、それほどでもありません。検索対象の数が増えるともっと顕著な差が現れると思われます。
+
+参考にtitleのみを抽出するクエリを測定してみます。
+
+
+```shell
+%%writefile command２.txt
+set enable_bitmapscan=on;
+\timing
+select title from wiki_jp where body like '%日本語%';
+```
+
+    Overwriting command２.txt
+
+
+
+```shell
+%%time
+!sudo -u postgres /usr/local/pgsql/bin/psql db < command.txt | tail -3
+```
+
+    (17006 rows)
+    
+    Time: 1804.455 ms (00:01.804)
+    CPU times: user 80.3 ms, sys: 16.7 ms, total: 96.9 ms
+    Wall time: 9.06 s
+
 
 ## DBの停止
 
